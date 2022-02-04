@@ -9,36 +9,36 @@ class AppModule {
 
   /**
    *
-   * @param {Number} l
-   * @param {Number} p
-   * @param {String} s
-   * @param {String} a
-   * @param {Number} c
-   * @param {Date} d
-   * @param {Boolean} o
-   * @returns Promise<Object>
+   * @param {Number} l limit
+   * @param {Number} p page
+   * @param {String} s search
+   * @param {String} a authors
+   * @param {Number} c category id
+   * @param {Date} d date
+   * @param {Boolean} o online/offline
+   * @returns {Promise<Cards[]>}
    */
   async getAllCards(l = 6, p = 1, s, a, c, d, o) {
     try {
       const { rows } = await this.#db.query(
         `
             select 
-            c.id,
-            c.user_id,
-            concat(u.name, ' ', u.surname) as fullname,
-            c.card_image,
-            c.title,
-            c.date,
-            sp.id as category_id,
-            sp.name as category_name,
-            case status 
-            when true then 'Online'
-            when false then 'Offline'
-            end as status
+              c.id,
+              c.user_id,
+              concat(u.name, ' ', u.surname) as fullname,
+              c.card_image,
+              c.title,
+              c.date,
+              sp.id as category_id,
+              sp.name as category_name,
+              case status 
+                when true then 'Online'
+                when false then 'Offline'
+              end as status
 
             from cards c
-            left join sap_categories sp on c.sap_category_id = sp.id
-            left join users u on u.id = c.user_id
+              left join sap_categories sp on c.sap_category_id = sp.id
+              left join users u on u.id = c.user_id
 
             where
                 c.card_deleted_at is null and
@@ -79,16 +79,16 @@ class AppModule {
 
   /**
    *
-   * @returns 'all categories'
+   * @returns {Promise<Categories[]>} 'all categories'
    */
   async getCategories() {
     try {
       const { rows } = await this.#db.query(`
             select 
-            c.*,
-            json_agg(sc.*) sap_categories
+              c.*,
+              json_agg(sc.*) sap_categories
             from categories c
-            left join sap_categories sc on c.id = sc.category_id
+              left join sap_categories sc on c.id = sc.category_id
             group by c.id
             order by c.id;
             `)
@@ -101,30 +101,30 @@ class AppModule {
   /**
    *
    * @param {Number} id
-   * @returns 'single card'
+   * @returns  {Promise<Categories>} 'single card'
    */
   async getCard(id) {
     try {
       const { rows } = await this.#db.query(
         `
             select 
-            c.id,
-            concat(u.name, ' ', u.surname) as fullname,
-            c.card_image,
-            c.title,
-            c.date,
-            c.short_info,
-            c.long_info,
-            c.views,
-            sp.id as category_id,
-            sp.name as category_name,
-            case status 
-            when true then 'Online'
-            when false then 'Offline'
-            end as status
+              c.id,
+              concat(u.name, ' ', u.surname) as fullname,
+              c.card_image,
+              c.title,
+              c.date,
+              c.short_info,
+              c.long_info,
+              c.views,
+              sp.id as category_id,
+              sp.name as category_name,
+              case status 
+                when true then 'Online'
+                when false then 'Offline'
+              end as status
             from cards c
-            left join sap_categories sp on c.sap_category_id = sp.id
-            left join users u on u.id = c.user_id
+              left join sap_categories sp on c.sap_category_id = sp.id
+              left join users u on u.id = c.user_id
             where c.id = $1;
             `,
         [id]
@@ -139,7 +139,7 @@ class AppModule {
   /**
    *
    * @param {Number} id
-   * @returns Array<Card>
+   * @returns {Promise<Cards>} cards by category id
    */
 
   async getRecomendet(id) {
@@ -147,20 +147,20 @@ class AppModule {
       const { rows } = await this.#db.query(
         `
             select 
-            c.id,
-            c.user_id,
-            concat(u.name, ' ', u.surname) as fullname,
-            c.card_image,
-            c.title,
-            c.date,
-            sp.name as category_name,
-            case status 
-            when true then 'Online'
-            when false then 'Offline'
-            end as status
+              c.id,
+              c.user_id,
+              concat(u.name, ' ', u.surname) as fullname,
+              c.card_image,
+              c.title,
+              c.date,
+              sp.name as category_name,
+              case status 
+                when true then 'Online'
+                when false then 'Offline'
+              end as status
             from cards c
-            left join sap_categories sp on c.sap_category_id = sp.id
-            left join users u on u.id = c.user_id
+              left join sap_categories sp on c.sap_category_id = sp.id
+              left join users u on u.id = c.user_id
             where c.sap_category_id = $1 
             order by c.id;
             `,
@@ -172,6 +172,10 @@ class AppModule {
     }
   }
 
+  /**
+   *
+   * @returns { Promise<Authors[]> } all authors
+   */
   async getAuthors() {
     try {
       const { rows } = await this.#db.query(`
@@ -188,9 +192,9 @@ class AppModule {
 
   /**
    *
-   * @param {full data for new cards} param0
-   * @param {file link} file_path
-   * @returns
+   * @param { Object } param0 full data for new cards
+   * @param { string } file_path file link
+   * @returns {Promise<newCard>} returning created card
    */
   async postCards(
     {
@@ -211,33 +215,43 @@ class AppModule {
     try {
       const statusBool = status.toLowerCase().trim() == 'online' ? true : false
 
-      const {
+      let {
         rows: [userArray],
       } = await this.#db.query(
         `
-        select id from users where $1 ilike concat(name, ' ', surname)
+        select id 
+        from users 
+        where $1 ilike concat(name, ' ', surname)
         `,
         [fullname]
       )
 
+      /**
+       * if user not found create this user
+       */
       if (!userArray) {
         const name = fullname.split(' ')[0]
         const surname = fullname.split(' ')[1]
 
         const {
-          rows: [userArray],
+          rows: [userId],
         } = await this.#db.query(
           `
-            insert into users (name, surname, phone, category) values ($1, $2, $3, $4) returning *
+            insert into users (name, surname, phone, category) 
+            values ($1, $2, $3, $4) 
+            returning id
             `,
           [name, surname, phone, category_id]
         )
+
+        userArray = userId
       }
 
       const { rows } = await this.#db.query(
         `
-        insert into cards (user_id, title, sap_category_id, date, short_info, long_info, status, location, card_image, card_created_at) values
-        ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *
+        insert into cards (user_id, title, sap_category_id, date, short_info, long_info, status, location, card_image, card_created_at) 
+        values ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+        returning *
         `,
         [
           userArray.id,
@@ -259,27 +273,35 @@ class AppModule {
     }
   }
 
+  /**
+   *
+   * @param {Object} param0 admin data
+   * @param {Object} headers request headers
+   * @returns {Promise<Object>} returning Object { token }
+   */
   async checkAdmin({ username, password }, headers) {
     try {
       const {
         rows: [foundAdmin],
       } = await this.#db.query(
         `
-					select * from admin where username = $1 and password = $2
+					select * 
+          from admin 
+          where username = $1 and password = $2
         `,
         [username, password]
       )
 
       if (!foundAdmin) throw new Error('login or password invalid')
+
       foundAdmin['user-agent'] = headers['user-agent']
 
       const token = jwt.sign(foundAdmin, process.env.jwt_password, {
-        expiresIn: '3h',
+        expiresIn: '12h',
       })
 
       return {
         token,
-        message: 'ok',
       }
     } catch (error) {
       return {
@@ -288,7 +310,14 @@ class AppModule {
     }
   }
 
-  async getConfirmation(token, { conf }, _agent) {
+  /**
+   *
+   * @param {String} token
+   * @param {String} param1
+   * @param {String} _agent
+   * @returns {Promise<Cards[]>} returning cards by Status (kutilmoqda, tasdiqlandi, bekor qilindi)
+   */
+  async getConfirmation(token, { conf = 2 }, _agent) {
     try {
       const admin = jwt.verify(token, process.env.jwt_password)
 
@@ -298,7 +327,9 @@ class AppModule {
         rows: [foundAdmin],
       } = await this.#db.query(
         `
-					select * from admin where id = $1 and username = $2 and password = $3
+					select * 
+          from admin 
+          where id = $1 and username = $2 and password = $3
 				`,
         [admin.id, admin.username, admin.password]
       )
@@ -307,8 +338,13 @@ class AppModule {
 
       const { rows: cards } = await this.#db.query(
         `
-				select * from cards c where c.date::timestamptz >= NOW();
-				`
+				select * 
+        from cards c 
+        where c.date::timestamptz >= NOW()
+          and  
+          c.confirmation_number = $1;
+				`,
+        [conf]
       )
 
       return cards
@@ -319,30 +355,29 @@ class AppModule {
     }
   }
 
+  /**
+   *
+   * @param {Object} param0
+   * @returns {Promise<UpdatedCard>} update card status
+   */
   async checkedAnnouncement({ id, confirmation }) {
     try {
       if (![0, 1, 2].includes(confirmation))
         throw new Error('Invalid confirmation!')
 
       const {
-        rows: [foundCard],
-      } = await this.#db.query(
-        `
-				select * from cards where id = $1
-			`,
-        [id]
-      )
-
-      if (!foundCard) throw new Error('Card not defined!')
-
-      const {
         rows: [card],
       } = await this.#db.query(
         `
-				update cards set confirmation_number = $1 where id = $2 returning *
+				update cards 
+          set confirmation_number = $1 
+        where id = $2 
+        returning *
 			`,
         [confirmation, id]
       )
+
+      if (!card) throw new Error('Card not defined!')
 
       return card
     } catch (error) {

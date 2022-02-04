@@ -5,9 +5,9 @@ config()
 const { Client } = pkg
 
 const client = new Client({
-  connectionString: `${process.env.db_url2}`,
+  connectionString: `${process.env.db_url}`,
 })
-async function dbconnector(fastify, options) {
+async function dbconnector(fastify) {
   try {
     await client.connect()
     console.log('db connected succesfully')
