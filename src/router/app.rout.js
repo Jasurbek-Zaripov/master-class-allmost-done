@@ -69,7 +69,7 @@ export const routes = async fastify => {
     /**
      * get static file with stream
      */
-    fastify.get('/api/public/*', ReadStream)
+    fastify.get('/public/*', ReadStream)
   } catch (xato) {
     console['log'](xato)
   }
