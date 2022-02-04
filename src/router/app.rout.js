@@ -2,7 +2,11 @@ import { AppController } from '../controller/app.controller.js'
 import AppModule from '../module/app.module.js'
 import { ReadStream } from '../module/staticFile.module.js'
 
-export const routes = async (fastify, options) => {
+/**
+ *
+ * @param {Router} fastify
+ */
+export const routes = async fastify => {
   //module
   const appModule = new AppModule(fastify.db.client)
   const appController = new AppController()
@@ -45,7 +49,7 @@ export const routes = async (fastify, options) => {
   fastify.post('/api/admin', appController.CheckAdmin.bind(appModule))
 
   /**
-   * xamma yengi postlarni ob chiqib beradi.
+   * get cards by status (tasdiqlandi, bekor qilindi, kutilmoqda)
    */
   fastify.get(
     '/api/check/confirmation',
@@ -53,12 +57,12 @@ export const routes = async (fastify, options) => {
   )
 
   /**
-   * Admin tekshirib bolgan elonlarni kiritadi
+   * update cards status
    */
-  fastify.post('/api/check', appController.PostCheck.bind(appModule))
+  fastify.put('/api/check', appController.PostCheck.bind(appModule))
 
   /**
-   * static file with stream
+   * get static file with stream
    */
   fastify.get('/public/*', ReadStream)
 }
