@@ -131,9 +131,9 @@ export class AppController {
   /**
    * Update by Type (pending: 1, eccepted: 2, rejected: 0 )
    */
-  async PostCheck(req, res) {
+  async PutCardStatus(req, res) {
     try {
-      return await this.checkedAnnouncement(req.body)
+      return await this.updateAnnouncement(req.body)
     } catch (error) {
       console.log(error)
     }

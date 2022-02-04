@@ -4,7 +4,8 @@ import { ReadStream } from '../module/staticFile.module.js'
 
 /**
  *
- * @param {Router} fastify
+ * @param {FastifyRouter} fastify
+ * @returns {Response} returnning response to client
  */
 export const routes = async fastify => {
   //module
@@ -52,14 +53,14 @@ export const routes = async fastify => {
    * get cards by status (tasdiqlandi, bekor qilindi, kutilmoqda)
    */
   fastify.get(
-    '/api/check/confirmation',
+    '/api/admin/confirmation',
     appController.GetCardByType.bind(appModule)
   )
 
   /**
    * update cards status
    */
-  fastify.put('/api/check', appController.PostCheck.bind(appModule))
+  fastify.put('/api/admin', appController.PutCardStatus.bind(appModule))
 
   /**
    * get static file with stream

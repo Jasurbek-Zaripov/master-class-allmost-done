@@ -360,7 +360,7 @@ class AppModule {
    * @param {Object} param0
    * @returns {Promise<UpdatedCard>} update card status
    */
-  async checkedAnnouncement({ id, confirmation }) {
+  async updateAnnouncement({ id, confirmation }) {
     try {
       if (![0, 1, 2].includes(confirmation))
         throw new Error('Invalid confirmation!')
