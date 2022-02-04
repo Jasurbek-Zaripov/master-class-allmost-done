@@ -36,7 +36,7 @@ export const routes = async fastify => {
    * home :)
    */
   fastify.get('/', (req, res) => {
-    return { hello: 'world!' }
+    return { Wel: 'come!' }
   })
 
   /**
@@ -47,7 +47,7 @@ export const routes = async fastify => {
   /**
    * check admin
    */
-  fastify.post('/api/admin', appController.CheckAdmin.bind(appModule))
+  fastify.post('/api/admin/login', appController.CheckAdmin.bind(appModule))
 
   /**
    * get cards by status (tasdiqlandi, bekor qilindi, kutilmoqda)
@@ -60,10 +60,10 @@ export const routes = async fastify => {
   /**
    * update cards status
    */
-  fastify.put('/api/admin', appController.PutCardStatus.bind(appModule))
+  fastify.put('/api/admin/status', appController.PutCardStatus.bind(appModule))
 
   /**
    * get static file with stream
    */
-  fastify.get('/public/*', ReadStream)
+  fastify.get('/api/public/*', ReadStream)
 }

@@ -181,7 +181,7 @@ class AppModule {
       const { rows } = await this.#db.query(`
             select 
                 u.id,
-                concat(u.name, ' ', u.surname)
+                concat(u.name, ' ', u.surname) fullnamne
             from users u;
             `)
       return rows
@@ -377,7 +377,7 @@ class AppModule {
         [confirmation, id]
       )
 
-      if (!card) throw new Error('Card not defined!')
+      if (!card) throw new Error('Card not Found!')
 
       return card
     } catch (error) {
