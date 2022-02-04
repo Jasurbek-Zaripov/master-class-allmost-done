@@ -59,7 +59,9 @@ export class AppController {
   async GetRecomendet(req, res) {
     try {
       const { id } = req.query
+
       if (id) return await this.getRecomendet(id)
+
       return new Error('not found card id')
     } catch (error) {
       res
@@ -118,6 +120,7 @@ export class AppController {
   async GetCardByType(req, res) {
     try {
       const { token } = req.headers
+
       return await this.getConfirmation(
         token,
         req.query,

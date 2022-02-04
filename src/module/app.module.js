@@ -342,7 +342,8 @@ class AppModule {
         from cards c 
         where c.date::timestamptz >= NOW()
           and  
-          c.confirmation_number = $1;
+          c.confirmation_number = $1
+        order by c.date::timestamp desc;
 				`,
         [conf]
       )
@@ -360,21 +361,30 @@ class AppModule {
    * @param {Object} param0
    * @returns {Promise<UpdatedCard>} update card status
    */
-  async updateAnnouncement({ id, confirmation }) {
+  async updateAnnouncement({ id, confirmation, view = false }) {
     try {
       if (![0, 1, 2].includes(confirmation))
         throw new Error('Invalid confirmation!')
+
+      if (isNaN(+view)) throw new Error('view must be type number!')
 
       const {
         rows: [card],
       } = await this.#db.query(
         `
-				update cards 
-          set confirmation_number = $1 
-        where id = $2 
+				update cards c
+          set confirmation_number = case
+                                        when $1 in (0, 1, 2) then $1
+                                        else c.confirmation_number
+                                    end,
+              views = case
+                        when $2 then c.views + 1
+                        else c.views
+                      end
+        where id = $3 
         returning *
 			`,
-        [confirmation, id]
+        [confirmation, view, id]
       )
 
       if (!card) throw new Error('Card not Found!')

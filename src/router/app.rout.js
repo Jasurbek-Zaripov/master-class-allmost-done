@@ -8,62 +8,69 @@ import { ReadStream } from '../module/staticFile.module.js'
  * @returns {Response} returnning response to client
  */
 export const routes = async fastify => {
-  //module
-  const appModule = new AppModule(fastify.db.client)
-  const appController = new AppController()
+  try {
+    //module
+    const appModule = new AppModule(fastify.db.client)
+    const appController = new AppController()
 
-  /**
-   * get all cards or only one cards!
-   */
-  fastify.get('/api/cards', appController.GetAllCards.bind(appModule))
+    /**
+     * get all cards or only one cards!
+     */
+    fastify.get('/api/cards', appController.GetAllCards.bind(appModule))
 
-  /**
-   * get all categories
-   */
-  fastify.get('/api/categories', appController.GetCategories.bind(appModule))
+    /**
+     * get all categories
+     */
+    fastify.get('/api/categories', appController.GetCategories.bind(appModule))
 
-  /**
-   * get all authors
-   */
-  fastify.get('/api/authors', appController.GetAuthors.bind(appModule))
+    /**
+     * get all authors
+     */
+    fastify.get('/api/authors', appController.GetAuthors.bind(appModule))
 
-  /**
-   * get recomendet crads for sap categroy id
-   */
-  fastify.get('/api/recomendet', appController.GetRecomendet.bind(appModule))
+    /**
+     * get recomendet crads for sap categroy id
+     */
+    fastify.get('/api/recomendet', appController.GetRecomendet.bind(appModule))
 
-  /**
-   * home :)
-   */
-  fastify.get('/', (req, res) => {
-    return { Wel: 'come!' }
-  })
+    /**
+     * home :)
+     */
+    fastify.get('/', (req, res) => {
+      return { Wel: 'come!' }
+    })
 
-  /**
-   * create new crads
-   */
-  fastify.post('/api/upload', appController.PostCreateCards.bind(appModule))
+    /**
+     * create new crads
+     */
+    fastify.post('/api/upload', appController.PostCreateCards.bind(appModule))
 
-  /**
-   * check admin
-   */
-  fastify.post('/api/admin/login', appController.CheckAdmin.bind(appModule))
+    /**
+     * check admin
+     */
+    fastify.post('/api/admin/login', appController.CheckAdmin.bind(appModule))
 
-  /**
-   * get cards by status (tasdiqlandi, bekor qilindi, kutilmoqda)
-   */
-  fastify.get(
-    '/api/admin/confirmation',
-    appController.GetCardByType.bind(appModule)
-  )
+    /**
+     * get cards by status (tasdiqlandi, bekor qilindi, kutilmoqda)
+     */
+    fastify.get(
+      '/api/admin/confirmation',
+      appController.GetCardByType.bind(appModule)
+    )
 
-  /**
-   * update cards status
-   */
-  fastify.put('/api/admin/status', appController.PutCardStatus.bind(appModule))
+    /**
+     * update cards status
+     */
+    fastify.put(
+      '/api/admin/update',
+      appController.PutCardStatus.bind(appModule)
+    )
 
-  /**
-   * get static file with stream
-   */
-  fastify.get('/api/public/*', ReadStream)
+    /**
+     * get static file with stream
+     */
+    fastify.get('/api/public/*', ReadStream)
+  } catch (xato) {
+    console['log'](xato)
+  }
 }
