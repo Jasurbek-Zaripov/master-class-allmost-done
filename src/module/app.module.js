@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { generateDatabaseDateTime } from '../service/date.service.js'
+import { cardsQury } from '../Sql/app.sql.js'
 
 class AppModule {
   #db
@@ -22,23 +23,7 @@ class AppModule {
     try {
       const { rows } = await this.#db.query(
         `
-            select 
-              c.id,
-              c.user_id,
-              concat(u.name, ' ', u.surname) as fullname,
-              c.card_image,
-              c.title,
-              c.date,
-              sp.id as category_id,
-              sp.name as category_name,
-              case status 
-                when true then 'Online'
-                when false then 'Offline'
-              end as status
-
-            from cards c
-              left join sap_categories sp on c.sap_category_id = sp.id
-              left join users u on u.id = c.user_id
+            ${cardsQury('c.user_id')}
 
             where
                 c.card_deleted_at is null and
@@ -107,24 +92,14 @@ class AppModule {
     try {
       const { rows } = await this.#db.query(
         `
-            select 
-              c.id,
-              concat(u.name, ' ', u.surname) as fullname,
-              c.card_image,
-              c.title,
-              c.date,
-              c.short_info,
-              c.long_info,
-              c.views,
-              sp.id as category_id,
-              sp.name as category_name,
-              case status 
-                when true then 'Online'
-                when false then 'Offline'
-              end as status
-            from cards c
-              left join sap_categories sp on c.sap_category_id = sp.id
-              left join users u on u.id = c.user_id
+            ${cardsQury(
+              `
+            c.views,
+            c.long_info,
+            c.short_info
+            `
+            )}
+
             where c.id = $1;
             `,
         [id]
@@ -146,21 +121,8 @@ class AppModule {
     try {
       const { rows } = await this.#db.query(
         `
-            select 
-              c.id,
-              c.user_id,
-              concat(u.name, ' ', u.surname) as fullname,
-              c.card_image,
-              c.title,
-              c.date,
-              sp.name as category_name,
-              case status 
-                when true then 'Online'
-                when false then 'Offline'
-              end as status
-            from cards c
-              left join sap_categories sp on c.sap_category_id = sp.id
-              left join users u on u.id = c.user_id
+            ${cardsQury('c.user_id')}
+
             where c.sap_category_id = $1 
             order by c.id;
             `,
@@ -373,14 +335,17 @@ class AppModule {
       } = await this.#db.query(
         `
 				update cards c
-          set confirmation_number = case
-                                        when $1 in (0, 1, 2) then $1
-                                        else c.confirmation_number
-                                    end,
-              views = case
-                        when $2 then c.views + 1
-                        else c.views
-                      end
+          set 
+            confirmation_number = 
+              case
+                when $1 in (0, 1, 2) then $1
+                else c.confirmation_number
+              end,
+            views = 
+              case
+                when $2 then c.views + 1
+                else c.views
+              end
         where id = $3 
         returning *
 			`,

@@ -2,6 +2,5 @@
  * date format function
  */
 export function generateDatabaseDateTime() {
-  const date = new Date()
-  return date.toISOString().replace('T', ' ').substring(0, 19)
+  return new Date(Date.now() + 5 * 60 * 60 * 1000).toLocaleString()
 }
