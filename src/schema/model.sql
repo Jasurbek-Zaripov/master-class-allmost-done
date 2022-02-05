@@ -7,7 +7,8 @@ create table users (
     phone varchar(15) not null,
     category int not null references categories(id),
     email VARCHAR(50),
-    proffesia VARCHAR(100)
+    proffesia VARCHAR(100),
+    personType VARCHAR(30)
 );
 
 create table admin (
@@ -21,15 +22,15 @@ create table admin (
 create table cards (
     id serial not null primary key,
     user_id int not null references users(id),
-    title varchar(200) not null,
+    title varchar(50) not null,
     sap_category_id int not null references sap_categories(id),
     views int not null default 0,
     card_image text not null,
     date timestamp not null,
-    short_info text not null,
-    long_info text not null,
+    short_info VARCHAR(70) not null,
+    long_info VARCHAR(550) not null,
     status boolean not null,
-    location text,
+    location VARCHAR(300),
     confirmation_number smallint not null DEFAULT 1,
     card_created_at timestamptz not null,
     card_deleted_at timestamptz

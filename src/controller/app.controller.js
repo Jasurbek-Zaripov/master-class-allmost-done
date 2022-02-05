@@ -79,7 +79,8 @@ export class AppController {
       upload(req, res, async err => {
         try {
           if (err) throw new Error(err)
-
+          console['log'](req.file)
+          console['log'](req.body)
           xato = await WriteFile(req.file)
 
           if (xato instanceof Error) {
