@@ -1,5 +1,5 @@
 import { upload } from '../config/multer.confige.js'
-import { WriteFile } from '../module/file.module.js'
+import { UnlinkFile, WriteFile } from '../module/file.module.js'
 
 export class AppController {
   /**
@@ -74,15 +74,16 @@ export class AppController {
    * Create new cards
    */
   async PostCreateCards(req, res) {
+    let xato
     try {
       upload(req, res, async err => {
         try {
           if (err) throw new Error(err)
 
-          let xato = await WriteFile(req.file)
+          xato = await WriteFile(req.file)
 
-          if (!xato) {
-            throw new Error('write file error!')
+          if (xato instanceof Error) {
+            throw new Error(xato.message)
           }
 
           const card = await this.postCards(req.body, xato)
@@ -90,6 +91,11 @@ export class AppController {
             .header('Content-Type', 'application/json; charset=utf-8')
             .send(card[0])
         } catch (er) {
+          // On Error delete file
+
+          if (!(xato instanceof Error)) {
+            UnlinkFile(xato)
+          }
           return res
             .header('Content-Type', 'application/json; charset=utf-8')
             .send({ ERROR: er.message })
@@ -110,7 +116,9 @@ export class AppController {
       const data = await this.checkAdmin(req.body, req.headers)
       return data
     } catch (error) {
-      console.log(error)
+      res
+        .header('Content-Type', 'application/json; charset=utf-8')
+        .send({ ERROR: error.message })
     }
   }
 
@@ -127,7 +135,9 @@ export class AppController {
         req.headers['user-agent']
       )
     } catch (error) {
-      console.log(error)
+      res
+        .header('Content-Type', 'application/json; charset=utf-8')
+        .send({ ERROR: error.message })
     }
   }
 
@@ -138,7 +148,9 @@ export class AppController {
     try {
       return await this.updateAnnouncement(req.body)
     } catch (error) {
-      console.log(error)
+      res
+        .header('Content-Type', 'application/json; charset=utf-8')
+        .send({ ERROR: error.message })
     }
   }
 }

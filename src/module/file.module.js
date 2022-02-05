@@ -1,4 +1,5 @@
-import { writeFile } from 'fs/promises'
+import { unlinkSync } from 'fs'
+import { unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 
 /**
@@ -16,5 +17,15 @@ export const WriteFile = async ({ buffer, originalname }) => {
     return file_name
   } catch (error) {
     return error
+  }
+}
+
+export const UnlinkFile = __ => {
+  try {
+    const file_path = join(process.cwd(), 'src', 'public', __)
+
+    unlinkSync(file_path)
+  } catch (error) {
+    console['log'](error)
   }
 }

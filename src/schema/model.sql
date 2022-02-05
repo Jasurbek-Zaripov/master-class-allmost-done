@@ -2,10 +2,12 @@ create database  master_class;
 
 create table users (
     id serial not null primary key,
-    name varchar(50) not null,
-    surname varchar(50) not null,
+    name varchar(30) not null,
+    surname varchar(30) not null,
     phone varchar(15) not null,
-    category int not null references categories(id)
+    category int not null references categories(id),
+    email VARCHAR(50),
+    proffesia VARCHAR(100)
 );
 
 create table admin (
