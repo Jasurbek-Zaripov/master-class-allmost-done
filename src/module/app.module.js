@@ -27,11 +27,37 @@ class AppModule {
         
 
               
-         order by c.date::timestamp desc
-         offset $1
-         limit $2
+         where
+            case
+                when length($3) > 0 then 
+                  sp.name ILIKE concat($3,'%') or 
+                  category::text ILIKE concat($3,'%') or
+                  concat(u.name, ' ', u.surname) ILIKE concat('%', $3,'%') or
+                  c.short_info ILIKE concat('%', $3,'%') or
+                  c.title ILIKE concat('%', $3,'%')
+                else true
+            end and
+            case
+                when length($4) > 0 then concat(u.name, ' ', u.surname) ILIKE concat('%',$4,'%')
+                else true
+            end and
+            case
+                when sp.id = $5 or $5 is null then true
+                else false
+            end and
+            case
+                when c.date::text ilike concat($6::text, '%') then true
+                else true
+            end and
+            case
+                when c.status = $7 or $7 is null then true
+                else false
+            end
+        order by c.date::timestamp desc
+        offset $1
+        limit $2
         `,
-        [(p - 1) * l, l]
+        [(p - 1) * l, l, s, a, c, d, o]
       )
 
       this.#db.relo
