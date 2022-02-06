@@ -25,9 +25,8 @@ class AppModule {
         `
         ${cardsQury('c.user_id')}
         
-       where
-             c.card_deleted_at is null and
-             c.confirmation_number = 2  
+
+              
          order by c.date::timestamp desc
          offset $1
          limit $2
