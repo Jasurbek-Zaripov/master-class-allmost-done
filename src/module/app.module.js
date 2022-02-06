@@ -206,7 +206,7 @@ class AppModule {
         } = await this.#db.query(
           `
             insert into users (name, surname, phone, category, email, proffesia) 
-            values ($1, $2, $3, $4) 
+            values ($1, $2, $3, $4, $5, $6) 
             returning id
             `,
           [name, surname, phone, category, email, proffesia]
