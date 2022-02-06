@@ -149,7 +149,7 @@ class AppModule {
       const { rows } = await this.#db.query(`
             select 
                 u.id,
-                concat(u.name, ' ', u.surname) fullnamne
+                concat(u.name, ' ', u.surname) fullname
             from users u;
             `)
       return rows
