@@ -28,6 +28,8 @@ class AppModule {
 
               
          where
+	    c.card_deleted_at is null and
+            c.confirmation_number = 2 and
             case
                 when length($3) > 0 then 
                   sp.name ILIKE concat($3,'%') or 
