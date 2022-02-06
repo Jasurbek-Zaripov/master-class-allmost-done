@@ -27,27 +27,7 @@ class AppModule {
         
        where
              c.card_deleted_at is null and
-             c.confirmation_number = 2 and  
-             case
-                 when length($3) > 0 then sp.name ILIKE concat('%',$3,'%')
-                 else true
-             end and
-             case
-                 when length($4) > 0 then concat(u.name, ' ', u.surname) ILIKE concat('%',$4,'%')
-                 else true
-             end and
-             case
-                 when sp.id = $5 then true
-                 else true
-             end and
-             case
-                 when c.date::text ilike concat($6::text, '%') then true
-                 else true
-             end and
-             case
-                 when c.status = $7 then true
-                 else true
-             end
+             c.confirmation_number = 2  
          order by c.date::timestamp desc
          offset $1
          limit $2
