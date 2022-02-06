@@ -32,7 +32,7 @@ class AppModule {
          offset $1
          limit $2
         `,
-        [(p - 1) * l, l, s, a, c, d, o]
+        [(p - 1) * l, l]
       )
 
       this.#db.relo
